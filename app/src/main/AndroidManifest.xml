@@ -26,6 +26,7 @@
         android:requestLegacyExternalStorage="true"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".CommonActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activity.CodeScanHuaweiActivity" android:screenOrientation="portrait"/>
         <activity android:name=".DefinedActivity" android:screenOrientation="portrait"/>
         <activity android:name=".GenerateCodeActivity" android:screenOrientation="portrait"/>
         <activity android:name=".DisPlayActivity" android:screenOrientation="portrait" />

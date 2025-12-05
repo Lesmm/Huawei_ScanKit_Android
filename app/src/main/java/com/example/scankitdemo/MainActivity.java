@@ -16,7 +16,6 @@
 package com.example.scankitdemo;
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -29,8 +28,11 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
+
+import com.example.scankitdemo.activity.CodeScanHuaweiActivity;
 import com.huawei.hms.hmsscankit.ScanUtil;
 import com.huawei.hms.ml.scan.HmsScan;
 import com.huawei.hms.ml.scan.HmsScanAnalyzerOptions;
@@ -43,6 +45,7 @@ public class MainActivity extends Activity implements ActivityCompat.OnRequestPe
      * Define requestCode.
      */
     public static final int CAMERA_REQ_CODE = 111;
+    public static final int HEXIAO_CODE = 112;
     public static final int DEFINED_CODE = 222;
     public static final int BITMAP_CODE = 333;
     public static final int MULTIPROCESSOR_SYN_CODE = 444;
@@ -51,6 +54,7 @@ public class MainActivity extends Activity implements ActivityCompat.OnRequestPe
     public static final int DECODE = 1;
     public static final int GENERATE = 2;
     private static final int REQUEST_CODE_SCAN_ONE = 0X01;
+    private static final int REQUEST_CODE_HEXIAO = 0X02;
     private static final int REQUEST_CODE_DEFINE = 0X0111;
     private static final int REQUEST_CODE_SCAN_MULTI = 0X011;
     public static final String DECODE_MODE = "decode_mode";
@@ -91,6 +95,10 @@ public class MainActivity extends Activity implements ActivityCompat.OnRequestPe
      */
     public void loadScanKitBtnClick(View view) {
         requestPermission(CAMERA_REQ_CODE, DECODE);
+    }
+
+    public void loadMyScanKitBtnClick(View view) {
+        requestPermission(HEXIAO_CODE, DECODE);
     }
 
     /**
@@ -197,6 +205,16 @@ public class MainActivity extends Activity implements ActivityCompat.OnRequestPe
         if (requestCode == CAMERA_REQ_CODE) {
             ScanUtil.startScan(this, REQUEST_CODE_SCAN_ONE, new HmsScanAnalyzerOptions.Creator().create());
         }
+        //He Xiao View Mode
+        if (requestCode == HEXIAO_CODE) {
+            // this.startActivityForResult(new Intent(this, CodeScanHuaweiActivity.class), REQUEST_CODE_HEXIAO);
+            CodeScanHuaweiActivity.start(this, new CodeScanHuaweiActivity.ScanCallback() {
+                @Override
+                public void onScanResult(@Nullable String result) {
+                    android.util.Log.d("CodeScanHuaweiActivity", ">>>>>>>> onScanResult: " + result);
+                }
+            });
+        }
         //Customized View Mode
         if (requestCode == DEFINED_CODE) {
             Intent intent = new Intent(this, DefinedActivity.class);
@@ -234,6 +252,11 @@ public class MainActivity extends Activity implements ActivityCompat.OnRequestPe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_OK || data == null) {
+            return;
+        }
+        if (requestCode == CodeScanHuaweiActivity.requestCode) {
+            HmsScan obj = data.getParcelableExtra(ScanUtil.RESULT);
+            CodeScanHuaweiActivity.invokeCallback(obj != null ? obj.getShowResult() : null);
             return;
         }
         //Default View
